@@ -20,7 +20,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventMealDate extends AbstractEntity{
+public class EventMealDate extends AbstractEntity {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;

@@ -21,8 +21,4 @@ public class UserMealChoice extends AbstractEntity {
     private Meal meal;
 
     private String note;
-
-//    private Long eventId;
-//    private Long eventMealDateId;
-//    private Long menuId;
 }
