@@ -18,6 +18,7 @@ public class User extends AbstractEntity {
 
     private String username;
     private String name;
+    private String email;
     @JsonIgnore
     private String hashedPassword;
     @Enumerated(EnumType.STRING)
