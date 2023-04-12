@@ -1,6 +1,7 @@
 package com.example.application.views.events;
 
 import com.example.application.data.entity.Event;
+import com.example.application.data.service.EventService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
@@ -17,19 +18,24 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.dom.ElementFactory;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @PageTitle("Create Event")
 @Route(value = "create-event", layout = MainLayout.class)
 @RolesAllowed("ADMIN")
-public class CreateEventView extends VerticalLayout {
+public class CreateEventView extends VerticalLayout implements HasUrlParameter<Long> {
 
+    private final EventService eventService;
     private DatePicker startDateField;
     private DatePicker endDateField;
     private TextField eventNameField;
@@ -40,8 +46,9 @@ public class CreateEventView extends VerticalLayout {
     private Binder<Event> eventBinder;
     private DatePicker selectionDeadlineField;
 
-    public CreateEventView() {
-        event = new Event();
+    public CreateEventView(EventService eventService) {
+        this.eventService = eventService;
+
 
         setMargin(true);
 
@@ -52,6 +59,7 @@ public class CreateEventView extends VerticalLayout {
         saveChanges.addClickListener(e -> {
             try {
                 eventBinder.writeBean(event);
+                eventService.save(event);
                 Notification.show("Saved");
             } catch (ValidationException ex) {
                 Notification.show("Not saved, check that event information is correct");
@@ -154,4 +162,24 @@ public class CreateEventView extends VerticalLayout {
     }
 
 
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter Long eventId) {
+        if (eventId == null) {
+            event = new Event();
+            return;
+        }
+        editEvent(eventId);
+    }
+
+    private void editEvent(Long eventId) {
+        Optional<Event> eventById = eventService.getEventById(eventId);
+        if (eventById.isPresent()) {
+            event = eventById.get();
+            eventBinder.readBean(event);
+        } else {
+            Notification.show("Unknown event id " + eventId);
+            event = new Event();
+        }
+
+    }
 }
