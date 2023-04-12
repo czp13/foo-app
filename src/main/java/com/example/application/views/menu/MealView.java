@@ -18,8 +18,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 @PageTitle("Meal")
@@ -40,8 +43,12 @@ public class MealView extends VerticalLayout {
         mealGrid.addColumn(Meal::getIngredients).setHeader("Ingredients");
         mealGrid.addComponentColumn(meal -> {
             Div div = new Div();
+            if(CollectionUtils.isEmpty(meal.getDietAttributes())){
+                return div;
+            }
             meal.getDietAttributes().forEach(dietAttribute -> {
                 Span badge = new Span(dietAttribute.getName());
+                badge.addClassName(LumoUtility.Margin.Right.XSMALL);
                 badge.getElement().getThemeList().add("badge");
                 div.add(badge);
             });
@@ -60,8 +67,10 @@ public class MealView extends VerticalLayout {
            mealDialog = new MealDialog();
            mealDialog.setSaveCallback(meal -> {
 
-
-               menuService.save(selectedMenu);
+               List<Meal> items = menuService.save(meal, selectedMenu.getId());
+               mealGrid.setItems(items);
+               updateBtn.setEnabled(false);
+               deleteBtn.setEnabled(false);
                //TODO save it to menu service
                mealDialog.close();
                mealDialog = null;
@@ -81,7 +90,8 @@ public class MealView extends VerticalLayout {
                 return;
             }
             selectedMenu = value;
-            mealGrid.setItems(selectedMenu.getMeals());
+            mealGrid.setEnabled(true);
+            mealGrid.setItems(menuService.findByMenuId(selectedMenu.getId()));
             addBtn.setEnabled(true);
         });
 

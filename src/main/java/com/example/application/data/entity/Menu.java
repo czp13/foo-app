@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Menu extends AbstractEntity {
     private String name;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Meal> meals;
     private MealType type;
     private Long orderId;
