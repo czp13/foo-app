@@ -40,7 +40,7 @@ public class MealDialog extends Dialog {
 
     public MealDialog(Meal meal) {
         setHeaderTitle("Update Meal");
-        binder.setBean(new Meal());
+        binder.setBean(meal);
         binder.readBean(meal);
         init();
     }

@@ -51,8 +51,6 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
 
     public CreateEventView(EventService eventService) {
         this.eventService = eventService;
-
-
         setMargin(true);
 
         HorizontalLayout header = new HorizontalLayout();

@@ -46,4 +46,7 @@ public class MenuService {
         menuRepository.deleteById(menuId);
     }
 
+    public Meal update(Meal meal) {
+        return mealRepository.save(meal);
+    }
 }

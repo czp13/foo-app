@@ -5,14 +5,13 @@ import com.example.application.data.entity.Menu;
 import com.example.application.security.AuthenticatedUser;
 import com.example.application.service.MenuService;
 import com.example.application.views.MainLayout;
+import com.example.application.views.util.NotificationUtil;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -25,7 +24,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 @PageTitle("Meal")
@@ -37,11 +35,14 @@ public class MealView extends MainLayout {
     private MealDialog mealDialog;
     private Menu selectedMenu;
     private List<Menu> menus;
-
+    private Button addBtn = new Button("Add", VaadinIcon.PLUS.create());
+    private Button deleteBtn = new Button("Delete", VaadinIcon.MINUS.create());
+    private Button updateBtn = new Button("Update");
     private final VerticalLayout container = new VerticalLayout();
+
     public MealView(AuthenticatedUser authenticatedUser,
                     AccessAnnotationChecker accessChecker,
-                    MenuService menuService){
+                    MenuService menuService) {
         super(authenticatedUser, accessChecker);
         viewTitle.setText(this.getClass().getAnnotation(PageTitle.class).value());
 
@@ -52,7 +53,7 @@ public class MealView extends MainLayout {
         mealGrid.addColumn(Meal::getIngredients).setHeader("Ingredients");
         mealGrid.addComponentColumn(meal -> {
             Div div = new Div();
-            if(CollectionUtils.isEmpty(meal.getDietAttributes())){
+            if (CollectionUtils.isEmpty(meal.getDietAttributes())) {
                 return div;
             }
             meal.getDietAttributes().forEach(dietAttribute -> {
@@ -64,27 +65,49 @@ public class MealView extends MainLayout {
             return div;
         }).setHeader("Attributes").setKey("attributes");
 
-        Button addBtn = new Button("Add", VaadinIcon.PLUS.create());
+        mealGrid.addSelectionListener(event -> {
+            if (event.getFirstSelectedItem().isEmpty()) {
+                return;
+            }
+            updateBtn.setEnabled(true);
+            deleteBtn.setEnabled(true);
+        });
+
+
         addBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        Button deleteBtn = new Button("Delete", VaadinIcon.MINUS.create());
+
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        Button updateBtn = new Button("Update");
+
+        updateBtn.addClickListener(event -> {
+            Meal value = mealGrid.asSingleSelect().getValue();
+            mealDialog = new MealDialog(value);
+            mealDialog.open();
+            mealDialog.setSaveCallback(meal -> {
+                Meal updatedMeal = menuService.update(meal);
+                updateBtn.setEnabled(false);
+                deleteBtn.setEnabled(false);
+                mealGrid.setItems(menuService.findByMenuId(selectedMenu.getId()));
+                NotificationUtil.showSuccess(updatedMeal.getName() + " is updated");
+                mealDialog.close();
+
+            });
+        });
         addBtn.setEnabled(false);
         deleteBtn.setEnabled(false);
         updateBtn.setEnabled(false);
         addBtn.addClickListener(event -> {
-           mealDialog = new MealDialog();
-           mealDialog.setSaveCallback(meal -> {
+            mealDialog = new MealDialog();
+            mealDialog.setSaveCallback(meal -> {
 
-               List<Meal> items = menuService.save(meal, selectedMenu.getId());
-               mealGrid.setItems(items);
-               updateBtn.setEnabled(false);
-               deleteBtn.setEnabled(false);
-               //TODO save it to menu service
-               mealDialog.close();
-               mealDialog = null;
-           });
-           mealDialog.open();
+                List<Meal> items = menuService.save(meal, selectedMenu.getId());
+                mealGrid.setItems(items);
+                updateBtn.setEnabled(false);
+                deleteBtn.setEnabled(false);
+                //TODO save it to menu service
+                mealDialog.close();
+                mealDialog = null;
+            });
+            mealDialog.open();
         });
         HorizontalLayout buttonLayout = new HorizontalLayout(deleteBtn, updateBtn, addBtn);
         buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -96,7 +119,7 @@ public class MealView extends MainLayout {
         menuComboBox.setItems(menus);
         menuComboBox.addValueChangeListener(event -> {
             Menu value = event.getValue();
-            if(value == null){
+            if (value == null) {
                 return;
             }
             selectedMenu = value;
