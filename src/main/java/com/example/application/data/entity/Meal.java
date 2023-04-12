@@ -1,5 +1,6 @@
 package com.example.application.data.entity;
 
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -22,5 +23,8 @@ public class Meal extends AbstractEntity {
 
     private String image;
 
+    private Long price;
+
+    @ElementCollection
     private List<DietAttributes> dietAttributes;
 }
