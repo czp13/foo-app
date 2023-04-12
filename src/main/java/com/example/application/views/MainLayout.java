@@ -10,6 +10,7 @@ import com.example.application.views.helloworld2.HelloWorld2View;
 import com.example.application.views.list.ListView;
 import com.example.application.views.menu.MealView;
 import com.example.application.views.menu.MenuView;
+import com.example.application.views.participant.ParticipantView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -92,6 +93,9 @@ public class MainLayout extends AppLayout {
         }
         if (accessChecker.hasAccess(MealView.class)) {
             nav.addItem(new AppNavItem("Meals", MealView.class, LineAwesomeIcon.LIST_SOLID.create()));
+        }
+        if (accessChecker.hasAccess(ParticipantView.class)) {
+            nav.addItem(new AppNavItem("Food choice", ParticipantView.class, LineAwesomeIcon.PIZZA_SLICE_SOLID.create()));
         }
 
         return nav;
