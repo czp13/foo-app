@@ -2,6 +2,7 @@ package com.example.application.data.entity;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,9 @@ public class Meal extends AbstractEntity {
     private String image;
 
     private Long price;
+
+    @ManyToOne
+    private Menu menu;
 
     @ElementCollection
     private List<DietAttributes> dietAttributes;
