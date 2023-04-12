@@ -11,6 +11,7 @@ import com.example.application.views.helloworld2.HelloWorld2View;
 import com.example.application.views.list.ListView;
 import com.example.application.views.menu.MealView;
 import com.example.application.views.menu.MenuView;
+import com.example.application.views.summary.OrderSummaryView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.example.application.views.participant.ParticipantView;
@@ -110,6 +111,9 @@ public class MainLayout extends AppLayout {
         }
         if (accessChecker.hasAccess(EventMenuSelectionListView.class)) {
             nav.addItem(new AppNavItem("Menu Selection", EventMenuSelectionListView.class, LineAwesomeIcon.PIZZA_SLICE_SOLID.create()));
+        }
+        if (accessChecker.hasAccess(OrderSummaryView.class)){
+            nav.addItem(new AppNavItem("Order Summary", OrderSummaryView.class, LineAwesomeIcon.CHART_BAR.create()));
         }
 
         return nav;
