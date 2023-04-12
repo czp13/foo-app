@@ -10,6 +10,8 @@ import com.example.application.views.helloworld2.HelloWorld2View;
 import com.example.application.views.list.ListView;
 import com.example.application.views.menu.MealView;
 import com.example.application.views.menu.MenuView;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
 import com.example.application.views.participant.ParticipantView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -23,6 +25,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.StreamResource;
@@ -38,7 +42,8 @@ import java.util.Optional;
  */
 public class MainLayout extends AppLayout {
 
-    private H2 viewTitle;
+    private final HorizontalLayout headerItemLayout = new HorizontalLayout();
+    protected H2 viewTitle;
 
     private AuthenticatedUser authenticatedUser;
     private AccessAnnotationChecker accessChecker;
@@ -46,6 +51,10 @@ public class MainLayout extends AppLayout {
     public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker) {
         this.authenticatedUser = authenticatedUser;
         this.accessChecker = accessChecker;
+
+        headerItemLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+        headerItemLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        headerItemLayout.setWidth(100, Unit.PERCENTAGE);
 
         setPrimarySection(Section.DRAWER);
         addDrawerContent();
@@ -59,7 +68,8 @@ public class MainLayout extends AppLayout {
         viewTitle = new H2();
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
-        addToNavbar(true, toggle, viewTitle);
+        headerItemLayout.add(viewTitle);
+        addToNavbar(true, toggle, headerItemLayout);
     }
 
     private void addDrawerContent() {
@@ -92,7 +102,7 @@ public class MainLayout extends AppLayout {
             nav.addItem(new AppNavItem("Menu", MenuView.class, LineAwesomeIcon.LIST_SOLID.create()));
         }
         if (accessChecker.hasAccess(MealView.class)) {
-            nav.addItem(new AppNavItem("Meals", MealView.class, LineAwesomeIcon.LIST_SOLID.create()));
+            nav.addItem(new AppNavItem("Meal", MealView.class, LineAwesomeIcon.LIST_SOLID.create()));
         }
         if (accessChecker.hasAccess(ParticipantView.class)) {
             nav.addItem(new AppNavItem("Food choice", ParticipantView.class, LineAwesomeIcon.PIZZA_SLICE_SOLID.create()));
@@ -151,4 +161,7 @@ public class MainLayout extends AppLayout {
         return title == null ? "" : title.value();
     }
 
+    protected void addItemToRightSlotOfNavbar(Component component){
+        headerItemLayout.add(component);
+    }
 }

@@ -49,7 +49,7 @@ public class MealDialog extends Dialog {
     private void init() {
         content.setPadding(false);
         content.setSpacing(false);
-        setWidth(300, Unit.PIXELS);
+        setWidth(450, Unit.PIXELS);
         ingredientsTextArea.setWidth(100, Unit.PERCENTAGE);
         attributesMultiSelectComboBox.setWidth(100, Unit.PERCENTAGE);
         Button saveButton = new Button("Save");

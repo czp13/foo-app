@@ -22,8 +22,6 @@ public class EventService {
     @Autowired
     private EventRepository repository;
 
-    @Autowired
-    private EventMailDateRepository mealDateRepository;
 
     public List<Event> getEvents() {
         return repository.findAll();

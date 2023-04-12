@@ -26,11 +26,13 @@ public class MenuDialog extends Dialog {
     @Setter
     private Consumer<Menu> saveCallback;
     public MenuDialog(){
+        setHeaderTitle("Create Menu");
         binder.setBean(new Menu());
         init();
     }
 
     public MenuDialog(Menu updatedMenu){
+        setHeaderTitle("Update Menu");
         binder.setBean(new Menu());
         binder.readBean(updatedMenu);
         init();

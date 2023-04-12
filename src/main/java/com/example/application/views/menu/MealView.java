@@ -2,6 +2,7 @@ package com.example.application.views.menu;
 
 import com.example.application.data.entity.Meal;
 import com.example.application.data.entity.Menu;
+import com.example.application.security.AuthenticatedUser;
 import com.example.application.service.MenuService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Unit;
@@ -14,10 +15,12 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.util.CollectionUtils;
@@ -26,17 +29,23 @@ import java.util.Collections;
 import java.util.List;
 
 @PageTitle("Meal")
-@Route(value = "meal", layout = MainLayout.class)
+@Route(value = "meal")
 @RolesAllowed("ADMIN")
-public class MealView extends VerticalLayout {
+public class MealView extends MainLayout {
 
     private final Grid<Meal> mealGrid;
     private MealDialog mealDialog;
     private Menu selectedMenu;
     private List<Menu> menus;
-    public MealView(MenuService menuService){
-        menus = menuService.findAll();
 
+    private final VerticalLayout container = new VerticalLayout();
+    public MealView(AuthenticatedUser authenticatedUser,
+                    AccessAnnotationChecker accessChecker,
+                    MenuService menuService){
+        super(authenticatedUser, accessChecker);
+        viewTitle.setText(this.getClass().getAnnotation(PageTitle.class).value());
+
+        menus = menuService.findAll();
         mealGrid = new Grid<>();
         mealGrid.setEnabled(false);
         mealGrid.addColumn(Meal::getName).setHeader("Name");
@@ -78,10 +87,11 @@ public class MealView extends VerticalLayout {
            mealDialog.open();
         });
         HorizontalLayout buttonLayout = new HorizontalLayout(deleteBtn, updateBtn, addBtn);
-        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+        buttonLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
         buttonLayout.setWidth(100, Unit.PERCENTAGE);
 
-        ComboBox<Menu> menuComboBox = new ComboBox<>("Select menu");
+        ComboBox<Menu> menuComboBox = new ComboBox<>();
+        menuComboBox.addClassName(LumoUtility.Padding.Right.LARGE);
         menuComboBox.setItemLabelGenerator(Menu::getName);
         menuComboBox.setItems(menus);
         menuComboBox.addValueChangeListener(event -> {
@@ -95,12 +105,13 @@ public class MealView extends VerticalLayout {
             addBtn.setEnabled(true);
         });
 
-        add(menuComboBox);
-        add(new Hr());
-        add(new H2("Meals"));
-        add(mealGrid);
-        add(buttonLayout);
-    }
 
+        addItemToRightSlotOfNavbar(menuComboBox);
+        container.add(mealGrid);
+        container.add(buttonLayout);
+
+        setContent(container);
+
+    }
 
 }
