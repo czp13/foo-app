@@ -8,7 +8,6 @@ public enum DietAttributes {
     GLUTEN_FREE("Gluten free"),
     CLEAN_EAT("Clean eat"),
     VEGAN("Vegan"),
-
     OTHER("Other");
 
     private final String name;

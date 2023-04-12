@@ -41,7 +41,10 @@ public class Event extends AbstractEntity {
             inverseJoinColumns = @JoinColumn(name = "event_meal_date_id")
     )
     private List<EventMealDate> eventMealDates;
+
+    // maybe later it could be a list of dates, not a start and end date
     private LocalDate fromDate;
     private LocalDate toDate;
+
     private LocalDate deadline;
 }
