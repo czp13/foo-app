@@ -1,6 +1,8 @@
 package com.example.application.views.events;
 
 import com.example.application.data.entity.Event;
+import com.example.application.data.entity.EventMealDate;
+import com.example.application.data.entity.Menu;
 import com.example.application.data.service.EventService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -27,6 +29,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -134,10 +137,10 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
         List<LocalDate> eventDays = startDate.datesUntil(endDate.plusDays(1))
                 .collect(Collectors.toList());
         // TODO: use created event
-        updateEventDays(null, eventDays);
+        updateEventDays(eventDays);
     }
 
-    private void updateEventDays(Event event, List<LocalDate> eventDays) {
+    private void updateEventDays(List<LocalDate> eventDays) {
         if (eventDays == null) {
             return;
         }
@@ -155,9 +158,20 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
 
     private Component getEventDayContent(LocalDate eventDate) {
         VerticalLayout content = new VerticalLayout();
-        content.add(new Span("TODO: Dummy event day content for " + eventDate.toString()));
-        content.add(new Button("Create new menu"));
-        content.add(new Button("Choose existing menu"));
+
+        Map<LocalDate, List<EventMealDate>> mealDatesByEvent = eventService.getMealDatesByEvent(event);
+        List<EventMealDate> mealDates = mealDatesByEvent.get(eventDate);
+        if ( mealDates == null || mealDates.isEmpty() ) {
+            content.add(new Span("No existing menus yet for " + eventDate.toString()));
+        } else {
+            for (EventMealDate emd : mealDates) {
+                Menu menu = emd.getMenu();
+                Span span = new Span(menu.getType().toString() + ": " + menu.getRestaurant());
+                content.add(span);
+            }
+        }
+
+        content.add(new Button("Choose menu"));
         return content;
     }
 
