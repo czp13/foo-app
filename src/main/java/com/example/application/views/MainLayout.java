@@ -4,7 +4,8 @@ import com.example.application.components.appnav.AppNav;
 import com.example.application.components.appnav.AppNavItem;
 import com.example.application.data.entity.User;
 import com.example.application.security.AuthenticatedUser;
-import com.example.application.views.helloworld.HelloWorldView;
+import com.example.application.views.events.CreateEventView;
+import com.example.application.views.events.EventsView;
 import com.example.application.views.helloworld2.HelloWorld2View;
 import com.example.application.views.list.ListView;
 import com.example.application.views.menu.MealView;
@@ -26,9 +27,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import org.vaadin.lineawesome.LineAwesomeIcon;
+
 import java.io.ByteArrayInputStream;
 import java.util.Optional;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -78,8 +80,8 @@ public class MainLayout extends AppLayout {
             nav.addItem(new AppNavItem("List", ListView.class, LineAwesomeIcon.TH_SOLID.create()));
 
         }
-        if (accessChecker.hasAccess(HelloWorldView.class)) {
-            nav.addItem(new AppNavItem("Hello World", HelloWorldView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
+        if (accessChecker.hasAccess(CreateEventView.class)) {
+            nav.addItem(new AppNavItem("Events", EventsView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
 
         }
         if (accessChecker.hasAccess(HelloWorld2View.class)) {
@@ -144,4 +146,5 @@ public class MainLayout extends AppLayout {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
+
 }
