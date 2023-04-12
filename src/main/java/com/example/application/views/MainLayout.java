@@ -4,6 +4,7 @@ import com.example.application.components.appnav.AppNav;
 import com.example.application.components.appnav.AppNavItem;
 import com.example.application.data.entity.User;
 import com.example.application.security.AuthenticatedUser;
+import com.example.application.views.eventlist.EventMenuSelectionListView;
 import com.example.application.views.events.CreateEventView;
 import com.example.application.views.events.EventsView;
 import com.example.application.views.helloworld2.HelloWorld2View;
@@ -106,6 +107,9 @@ public class MainLayout extends AppLayout {
         }
         if (accessChecker.hasAccess(ParticipantView.class)) {
             nav.addItem(new AppNavItem("Food choice", ParticipantView.class, LineAwesomeIcon.PIZZA_SLICE_SOLID.create()));
+        }
+        if (accessChecker.hasAccess(EventMenuSelectionListView.class)) {
+            nav.addItem(new AppNavItem("Menu Selection", EventMenuSelectionListView.class, LineAwesomeIcon.PIZZA_SLICE_SOLID.create()));
         }
 
         return nav;

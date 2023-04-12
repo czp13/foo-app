@@ -35,14 +35,12 @@ public class ParticipantService {
             Meal glutenFreePizza = new Meal();
             glutenFreePizza.setName("Gluten Free Pizza" + i);
             glutenFreePizza.setIngredients("Gluten Free Pizza Ingredients" + i);
-            glutenFreePizza.setDescription("Gluten Free Pizza Description" + i);
             glutenFreePizza.setImage("Gluten Free Pizza Image URL" + i);
             glutenFreePizza.setDietAttributes(List.of(DietAttributes.GLUTEN_FREE));
 
             Meal veganBurger = new Meal();
             veganBurger.setName("Vegan Burger" + i);
             veganBurger.setIngredients("Vegan Burger Ingredients" + i);
-            veganBurger.setDescription("Vegan Burger Description" + i);
             veganBurger.setImage("Vegan Burger Image URL" + i);
             veganBurger.setDietAttributes(List.of(DietAttributes.VEGAN));
 

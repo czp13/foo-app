@@ -42,6 +42,7 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
     private DatePicker startDateField;
     private DatePicker endDateField;
     private TextField eventNameField;
+    private TextField descriptionField;
     private Button saveChanges;
     private VerticalLayout eventDaysLayout;
 
@@ -81,7 +82,9 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
     private FormLayout initEventForm() {
         FormLayout eventDataLayout = new FormLayout();
         eventNameField = new TextField("Event name");
+        descriptionField = new TextField("Event description");
         startDateField = new DatePicker("Start date");
+
         startDateField.addValueChangeListener(e -> {
             datesUpdated();
         });
@@ -91,13 +94,15 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
         });
         selectionDeadlineField = new DatePicker("Selection deadline");
 
+
         eventDataLayout.add(eventNameField);
-        eventDataLayout.getElement().appendChild(ElementFactory.createBr());
+        eventDataLayout.add(descriptionField);
         eventDataLayout.add(startDateField, endDateField);
         eventDataLayout.add(selectionDeadlineField);
         eventDataLayout.getElement().appendChild(ElementFactory.createBr());
         this.eventBinder = new Binder<>(Event.class);
         eventBinder.forField(eventNameField).asRequired().bind(Event::getName, Event::setName);
+        eventBinder.forField(descriptionField).bind(Event::getDescription, Event::setDescription);
         eventBinder.forField(startDateField)
                 .withValidator(start -> {
                     LocalDate end = endDateField.getValue();

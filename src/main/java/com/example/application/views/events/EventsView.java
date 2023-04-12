@@ -44,10 +44,13 @@ public class EventsView extends VerticalLayout {
             VerticalLayout eventInfoLayout = new VerticalLayout();
             eventInfoLayout.setMinWidth(480, Unit.PIXELS);
             eventInfoLayout.add(new Span("Event name: " + event.getName()));
+            eventInfoLayout.add(new Span("Description " + event.getDescription()));
             eventInfoLayout.add(new Span(event.getFromDate().toString() + " - " + event.getToDate()));
             // eventInfoLayout.add(new Span("Participants - " + event.getParticipants().size()));
             eventInfoLayout.add(new Span("Selection deadline - " + (event.getDeadline() == null ? "" : event.getDeadline().toString())));
+
             VerticalLayout buttonsLayout = new VerticalLayout();
+
             Button editButton = new Button("Edit", e -> {
                 UI.getCurrent().navigate(CreateEventView.class, event.getId());
             });
