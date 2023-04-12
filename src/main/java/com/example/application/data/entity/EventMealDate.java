@@ -5,6 +5,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,10 @@ public class EventMealDate extends AbstractEntity{
     // only ONE food is allowed!
     // Ask maybe Anna?!
     private Menu menu;
+
+    @OneToMany
+    @JoinColumn(name = "user_meal_choice_id")
+    private List<UserMealChoice> userMealChoices;
 
     private LocalDate date;
 }
