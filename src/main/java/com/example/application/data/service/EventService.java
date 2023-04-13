@@ -64,6 +64,9 @@ public class EventService {
     public Map<LocalDate, List<EventMealDate>> getMealDatesByEvent(Event event) {
 
         Map<LocalDate, List<EventMealDate>> mealDatesByDate = new HashMap<>();
+        if (event == null) {
+            return mealDatesByDate;
+        }
         List<LocalDate> eventDays = event.getFromDate().datesUntil(event.getToDate().plusDays(1))
                 .collect(Collectors.toList());
         for (LocalDate date : eventDays) {

@@ -2,20 +2,29 @@ package com.example.application.views.events;
 
 import com.example.application.data.entity.Event;
 import com.example.application.data.entity.EventMealDate;
+import com.example.application.data.entity.MealType;
 import com.example.application.data.entity.Menu;
 import com.example.application.data.service.EventService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.charts.model.Dial;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -28,6 +37,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.RolesAllowed;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +49,8 @@ import java.util.stream.Collectors;
 public class CreateEventView extends VerticalLayout implements HasUrlParameter<Long> {
 
     private final EventService eventService;
+
+    private Map<LocalDate, List<EventMealDate>> mealDatesByEvent;
     private DatePicker startDateField;
     private DatePicker endDateField;
     private TextField eventNameField;
@@ -52,6 +64,7 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
 
     public CreateEventView(EventService eventService) {
         this.eventService = eventService;
+        mealDatesByEvent = eventService.getMealDatesByEvent(event);
         setMargin(true);
 
         HorizontalLayout header = new HorizontalLayout();
@@ -150,11 +163,11 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
         eventDaysLayout.removeAll();
         for (int i = 0; i < eventDays.size(); i++) {
             LocalDate eventDate = eventDays.get(i);
-            // TODO: check for existing date in Event
             Details eventDayDetails = new Details();
             int dayNumber = i + 1;
             eventDayDetails.setSummary(new Span("Day " + dayNumber + " - " + eventDate.toString()));
             eventDayDetails.setContent(getEventDayContent(eventDate));
+            eventDayDetails.setOpened(true);
             eventDaysLayout.add(eventDayDetails);
         }
     }
@@ -162,19 +175,77 @@ public class CreateEventView extends VerticalLayout implements HasUrlParameter<L
     private Component getEventDayContent(LocalDate eventDate) {
         VerticalLayout content = new VerticalLayout();
 
-        Map<LocalDate, List<EventMealDate>> mealDatesByEvent = eventService.getMealDatesByEvent(event);
         List<EventMealDate> mealDates = mealDatesByEvent.get(eventDate);
         if ( mealDates == null || mealDates.isEmpty() ) {
             content.add(new Span("No existing menus yet for " + eventDate.toString()));
         } else {
             for (EventMealDate emd : mealDates) {
                 Menu menu = emd.getMenu();
+                HorizontalLayout holder = new HorizontalLayout();
                 Span span = new Span(menu.getType().toString() + ": " + menu.getRestaurant());
-                content.add(span);
+                holder.add(span, new Button(VaadinIcon.MINUS.create(), e -> {
+                    mealDatesByEvent.get(eventDate).remove(emd);
+                    datesUpdated();
+                }));
+                holder.setDefaultVerticalComponentAlignment(Alignment.CENTER);
+                content.add(holder);
             }
         }
 
-        content.add(new Button("Choose menu"));
+        content.add(new Button("Choose menu for date", e -> {
+            Dialog dialog = new Dialog();
+            Select<String> restaurantSelect = new Select<>();
+            RadioButtonGroup<MealType> menuTypeRBG = new RadioButtonGroup<>();
+            menuTypeRBG.setItems(MealType.values());
+            menuTypeRBG.addValueChangeListener(v -> {
+                switch (v.getValue()) {
+                    case LUNCH -> {
+                        restaurantSelect.setItems("Pizzeria Via Tribunali", "Thai in Town", "Taco Nito", "Kotipizza");
+                        break;
+                    }
+                    case BREAKFAST -> {
+                        restaurantSelect.setItems("Sodexo");
+                        break;
+                    }
+                    case DESSERT -> {
+                        restaurantSelect.setItems("Unica", "K-Citymarket Kupittaa");
+                    }
+                }
+
+            });
+            menuTypeRBG.setValue(MealType.LUNCH);
+
+            Button confirmButton = new Button("Confirm");
+            confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            Button cancelButton = new Button("Cancel");
+            cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            confirmButton.addClickListener( confirmEvent -> {
+                String restaurant = restaurantSelect.getValue();
+                Menu selectedMenu = new Menu();
+                selectedMenu.setRestaurant(restaurant);
+                selectedMenu.setType(menuTypeRBG.getValue());
+                EventMealDate eventMealDate = new EventMealDate();
+                eventMealDate.setDate(eventDate);
+                eventMealDate.setMenu(selectedMenu);
+                List<EventMealDate> mealDates1 = mealDatesByEvent.get(eventDate);
+                if (mealDates1 == null) {
+                    mealDates1 = new ArrayList<>();
+                    mealDatesByEvent.put(eventDate, mealDates1);
+                }
+                mealDates1.add(eventMealDate);
+                dialog.close();
+                datesUpdated();
+            });
+            cancelButton.addClickListener(cancelEv -> {
+                dialog.close();
+            });
+            HorizontalLayout dialogButtons = new HorizontalLayout(confirmButton, cancelButton);
+            VerticalLayout dialogContent = new VerticalLayout(menuTypeRBG, restaurantSelect, dialogButtons);
+            dialog.add(dialogContent);
+            dialog.open();
+
+
+        }));
         return content;
     }
 
